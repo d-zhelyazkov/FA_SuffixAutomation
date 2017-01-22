@@ -1,0 +1,1 @@
+./compileAndTest.sh && ./archive.sh && ./testExecutionFLow.sh

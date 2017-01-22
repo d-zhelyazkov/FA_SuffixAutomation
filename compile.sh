@@ -1,0 +1,1 @@
+g++ -std=c++1y ./FA_SuffixAutomation/Source.cpp
