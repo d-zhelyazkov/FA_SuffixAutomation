@@ -18,8 +18,13 @@ int main() {
 	char* word = new char[MAX_LEN + 1];
 	scanf("%s", word);
 
+    unsigned charSize = scanf("%s", word);
+    printf("%d\n", charSize);
+
+    return 0;
+
 	//init
-	CURRENT = START = statesArray + getNewState();
+	CURRENT = START = getNewState();
 
 	//populating suffix automaton
 	for (unsigned i = 0; word[i]; i++) {
@@ -40,33 +45,35 @@ void addChar(char c) {
 	//c++;
 
 	//creating a state
-    unsigned newStateIx = getNewState();
-    State* newState = statesArray + newStateIx;
+    unsigned newStateIx = getNewStateIx();
+    State* newState = getStateByIx(newStateIx);
     newState->alpha = c;
 	newState->length = CURRENT->length + 1;
 
 	State* state = CURRENT;
 	//assigning missing edges to suffix links up to the start
 	State* childState = 0;
-	for (; state && !(childState = state->getChild(c)); state = state->suffixLink) {
+    unsigned childIx = -1;
+	for (; state && !(childState = getStateByIx(childIx = state->getChildIx(c))); state = getStateByIx(state->suffixLink)){
 		state->childrenStates.add(newStateIx);
 		EDGES_CNT++;
 	}
 
-	newState->suffixLink = START;
+	newState->suffixLink = 0;
 	if (childState) {
 		//if a corresponing edge was found
-		newState->suffixLink = childState;
+		newState->suffixLink = childIx;
 
 		if (state->length + 1 != childState->length) {
 			//creating a clone
-			State* clone = new State(childState);
+            unsigned cloneIx = childState->clone();
+            State* clone = getStateByIx(cloneIx);
 			clone->length = state->length + 1;
-			for (; state && state->getChild(c) == childState; state = state->suffixLink) {
-				state->replaceChild(clone);
+			for (; state && state->getChildIx(c) == childIx; state = getStateByIx(state->suffixLink)) {
+				state->replaceChild(cloneIx);
 			}
 
-			newState->suffixLink = childState->suffixLink = clone;
+			newState->suffixLink = childState->suffixLink = cloneIx;
 		}
 	}
 	
@@ -75,7 +82,7 @@ void addChar(char c) {
 
 unsigned countTerminals() {
 	unsigned terminals = 0;
-	for (State* state = CURRENT; state; state = state->suffixLink)
+	for (State* state = CURRENT; state; state = getStateByIx(state->suffixLink))
 		terminals++;
 
 	return terminals;

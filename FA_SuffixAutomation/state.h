@@ -15,8 +15,8 @@ struct State {
 	//LinkedList<State*>* childrenStates = 0;
     ArrayList<unsigned> childrenStates;
 
-    State* clone();
-    State* getChild(char c);
+    unsigned clone();
+    unsigned getChildIx(char c);
     void replaceChild(unsigned stateIx);
 };
 
@@ -24,9 +24,25 @@ struct State {
 State* statesArray = 0;
 
 State* init(unsigned statesCapacity) {
+    STATES_CAPACITY = statesCapacity;
     return statesArray = (State*)malloc(sizeof(State) * statesCapacity);
 }
 
-unsigned getNewState() {
+unsigned getNewStateIx() {
+    if (STATES_CNT == STATES_CAPACITY)
+        return -1;
     return STATES_CNT++;
 }
+
+State* getNewState() {
+    if (STATES_CNT == STATES_CAPACITY)
+        return 0;
+    return statesArray + STATES_CNT++;
+}
+
+State* getStateByIx(unsigned ix) {
+    if (STATES_CNT <= ix)
+        return 0;
+    return statesArray + ix;
+}
+
