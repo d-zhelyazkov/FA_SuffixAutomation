@@ -1,30 +1,19 @@
 #pragma once
-
 #include <stdlib.h>
 
-class State {
 
-    State(unsigned ix);
+extern unsigned STATES_CNT;
+extern unsigned long long EDGES_CNT;
 
-public:
-
-    static void init(unsigned statesCapacity);
-    static State* getNewState();
-    static unsigned getStatesCount();
-    static State* getStateByIx(unsigned ix);
+extern unsigned* statesLengths;
+extern unsigned* statesLinks;
+extern char* statesAlphas;
 
 
-    unsigned ix = -1;
-	unsigned* length = 0;
-	unsigned* suffixLink = 0;
-    char* alpha = 0;
-
-
-    State* clone();
-    void addChild(State* child);
-    State* getChild(char c);
-    void replaceChild(State* state);
-
-};
-
-unsigned long long* getEdgesCount();
+void init(unsigned statesCapacity);
+unsigned getNewState();
+unsigned cloneState(unsigned state);
+//void setChild(unsigned state, unsigned child);
+void addChild(unsigned state, unsigned child);
+void replaceChild(unsigned state, unsigned newChild);
+unsigned getChild(unsigned state, char c);

@@ -1,1 +1,1 @@
-g++ -std=c++1y ./FA_SuffixAutomation/Source.cpp
+g++ -std=c++1y ./FA_SuffixAutomation/Source.cpp ./FA_SuffixAutomation/state.cpp

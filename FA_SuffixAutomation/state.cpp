@@ -1,114 +1,159 @@
 #include "state.h"
 #include<string.h>
+#include <stdio.h>
 
+//#define CHILDREN_SIZE 26
+//enum ChildrenCount { ZERO, ONE, MANY };
+
+//externs
 unsigned STATES_CNT = 0;
-unsigned STATES_CAPACITY = 0;
 unsigned long long EDGES_CNT = 0;
 
 unsigned* statesLengths = 0;
 unsigned* statesLinks = 0;
 char* statesAlphas = 0;
-unsigned char* statesChildrenCounts = 0;
+
+//locals
 unsigned** statesChildren = 0;
+unsigned char* statesChildrenCounts = 0;
+
 
 template <typename T>
-T* mallocT(T*&arrPtr, unsigned size) {
-    return arrPtr = (T*)malloc(size * sizeof(T));
+T* templateCalloc(T*&arrPtr, unsigned size) {
+    return arrPtr = (T*)calloc(size, sizeof(T));
 }
 
-State::State(unsigned ix) {
-    this->ix = ix;
-    this->suffixLink = &statesLinks[ix];
-    this->length = &statesLengths[ix];
-    this->alpha = &statesAlphas[ix];
+void init(unsigned statesCapacity) {
+    templateCalloc(statesLengths, statesCapacity);
+    templateCalloc(statesLinks, statesCapacity);
+    templateCalloc(statesAlphas, statesCapacity);
+    templateCalloc(statesChildrenCounts, statesCapacity);
+    templateCalloc(statesChildren, statesCapacity);
 }
 
-State* State::clone() {
-    State* clone = getNewState();
-    clone->alpha = this->alpha;
-    clone->suffixLink = this->suffixLink;
+unsigned getNewState() {
+    STATES_CNT++;
 
-    unsigned char children = statesChildrenCounts[this->ix];
-    if (children) {
-        statesChildrenCounts[clone->ix] = children;
-        statesChildren[clone->ix] = new unsigned[children];
-        memcpy(statesChildren[clone->ix], statesChildren[this->ix], children * sizeof(unsigned));
-        EDGES_CNT += children;
+    /*statesAlphas[STATES_CNT] = 0;
+    statesLinks[STATES_CNT] = 0;
+    statesLengths[STATES_CNT] = 0;
+    statesChildren[STATES_CNT] = 0;
+    statesChildrenManyFlag[STATES_CNT] = 0;*/
+
+    return STATES_CNT;
+}
+
+//ChildrenCount getStateChildrenCount(unsigned state) {
+//    return (!statesChildren[state]) ? ZERO :
+//        (!statesChildrenManyFlag[state]) ? ONE : MANY;
+//}
+
+unsigned cloneState(unsigned state) {
+    unsigned clone = getNewState();
+    statesAlphas[clone] = statesAlphas[state];
+    statesLinks[clone] = statesLinks[state];
+
+    //copy children array
+    unsigned char childrenCount = statesChildrenCounts[clone] = statesChildrenCounts[state];
+    if (childrenCount) {
+        statesChildren[clone] = new unsigned[childrenCount];
+        memcpy(statesChildren[clone], statesChildren[state], childrenCount * sizeof(unsigned));
+        EDGES_CNT += childrenCount;
     }
-
+    /*switch (getStateChildrenCount(state)) {
+    case ZERO:
+        break;
+    case ONE:
+        statesChildren[clone] = new unsigned(*(statesChildren[state]));
+        EDGES_CNT++;
+        break;
+    case MANY:
+        statesChildren[clone] = new unsigned[CHILDREN_SIZE];
+        memcpy(statesChildren[clone], statesChildren[state], CHILDREN_SIZE * sizeof(unsigned));
+        for (unsigned i = 0; i < CHILDREN_SIZE; i++) {
+            if (statesChildren[clone][i])
+                EDGES_CNT++;
+        }
+        break;
+    }*/
+        
     return clone;
 }
 
-void State::addChild(State * child) {
-    unsigned char children = statesChildrenCounts[this->ix];
-    unsigned* newArray = new unsigned[children + 1];
-    if (children) {
-        memcpy(newArray, statesChildren[this->ix], children * sizeof(unsigned));
-        delete[] statesChildren[this->ix];
+//void setChild(unsigned state, unsigned child) {
+//    switch (getStateChildrenCount(state)) {
+//    case ZERO:
+//        statesChildren[state] = new unsigned(child);
+//        EDGES_CNT++;
+//        break;
+//    case ONE: {
+//        unsigned existingChild = *(statesChildren[state]);
+//        if (statesAlphas[existingChild] == statesAlphas[child]) {
+//            *(statesChildren[state]) = child;
+//        }
+//        else {
+//            delete statesChildren[state];
+//            statesChildren[state] = new unsigned[CHILDREN_SIZE]();
+//            statesChildren[state][statesAlphas[existingChild] - 'a'] = existingChild;
+//            statesChildren[state][statesAlphas[child] - 'a'] = child;
+//            EDGES_CNT++;
+//        }
+//        break;
+//    }
+//    case MANY: {
+//            char normalizedAlpha = statesAlphas[child] - 'a';
+//            if (!statesChildren[state][normalizedAlpha])
+//                EDGES_CNT++;
+//            statesChildren[state][normalizedAlpha] = child;
+//        }
+//        break;
+//    }
+//
+//}
+
+void addChild(unsigned state, unsigned child) {
+    unsigned childrenCount = statesChildrenCounts[state];
+    unsigned* newArray = new unsigned[childrenCount + 1];
+    if (childrenCount) {
+        memcpy(newArray, statesChildren[state], childrenCount * sizeof(unsigned));
+        delete[] statesChildren[state];
     }
 
-    newArray[children] = child->ix;
-    statesChildren[this->ix] = newArray;
-    statesChildrenCounts[this->ix]++;
+    newArray[childrenCount] = child;
+    statesChildren[state] = newArray;
+    statesChildrenCounts[state] ++;
+    EDGES_CNT++;
 }
 
-State* State::getChild(char c) {
+void replaceChild(unsigned state, unsigned newChild) {
+    for (unsigned char i = 0; i < statesChildrenCounts[state]; i++) {
+        unsigned child = statesChildren[state][i];
+        if (statesAlphas[child] != statesAlphas[newChild])
+            continue;
+        
+        statesChildren[state][i] = newChild;
+        break;
+    }
+}
 
-    for (unsigned i = 0; i < statesChildrenCounts[ix]; i++) {
-        State* child = getStateByIx(statesChildren[this->ix][i]);
-        if (*(child->alpha) == c)
+unsigned getChild(unsigned state, char c) {
+
+    for (unsigned char i = 0; i < statesChildrenCounts[state]; i++) {
+        unsigned child = statesChildren[state][i];
+        if (statesAlphas[child] == c)
             return child;
-        delete child;
     }
 
     return 0;
-}
 
-void State::replaceChild(State* state) {
-    for (unsigned i = 0; i < statesChildrenCounts[this->ix]; i++) {
-        State* child = getStateByIx(statesChildren[this->ix][i]);
-        if (child->alpha == state->alpha) {
-            statesChildren[this->ix][i] = state->ix;
-            delete child;
-            return;
+    /*switch (getStateChildrenCount(state)) {
+    case ZERO:
+        return 0;
+    case ONE: {
+            unsigned child = *(statesChildren[state]);
+            return (statesAlphas[child] == c) ? child : 0;
         }
-        delete child;
-    }
-}
-
-void State::init(unsigned statesCapacity) {
-    STATES_CAPACITY = statesCapacity;
-
-    mallocT(statesLengths, statesCapacity);
-    mallocT(statesLinks, statesCapacity);
-    mallocT(statesAlphas, statesCapacity);
-    mallocT(statesChildrenCounts, statesCapacity);
-    mallocT(statesChildren, statesCapacity);
-}
-
-State* State::getNewState() {
-    if (STATES_CNT == STATES_CAPACITY)
-        return 0;
-
-    State* newState = new State(STATES_CNT++);
-    *(newState->alpha) = 0;
-    *(newState->suffixLink) = -1;
-    *(newState->length) = 0;
-    statesChildrenCounts[newState->ix] = 0;
-    return newState;
-}
-
-State* State::getStateByIx(unsigned ix) {
-    if (STATES_CNT <= ix)
-        return 0;
-
-    return new State(ix);
-}
-
-unsigned long long* getEdgesCount() {
-    return &EDGES_CNT;
-}
-
-unsigned State::getStatesCount() {
-    return STATES_CNT;
+    case MANY:
+        return statesChildren[state][c - 'a'];
+    }*/
 }
