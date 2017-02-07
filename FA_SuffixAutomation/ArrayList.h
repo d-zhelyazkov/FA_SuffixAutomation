@@ -10,13 +10,13 @@ struct ArrayList {
     ArrayList(ArrayList* arrayList) {
         this->size = arrayList->size;
         array = new T[size];
-        memcpy(array, arrayList->array, size);
+        memcpy(array, arrayList->array, size * sizeof(T));
     }
 
     void add(T element) {
         T* newArray = new T[size + 1];
         if (array) {
-            memcpy(newArray, array, size);
+            memcpy(newArray, array, size * sizeof(T));
             delete[] array;
         }
 

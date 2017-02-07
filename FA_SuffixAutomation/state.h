@@ -1,48 +1,30 @@
 #pragma once
 
-//#include"linked_list.h"
-#include "ArrayList.h"
 #include <stdlib.h>
 
-unsigned STATES_CNT = 0;
-unsigned STATES_CAPACITY = 0;
-unsigned long long EDGES_CNT = 0;
+class State {
 
-struct State {
-	char alpha = 0;
-	unsigned length = 0;
-	unsigned suffixLink = -1;
-	//LinkedList<State*>* childrenStates = 0;
-    ArrayList<unsigned> childrenStates;
+    State(unsigned ix);
 
-    unsigned clone();
-    unsigned getChildIx(char c);
-    void replaceChild(unsigned stateIx);
+public:
+
+    static void init(unsigned statesCapacity);
+    static State* getNewState();
+    static unsigned getStatesCount();
+    static State* getStateByIx(unsigned ix);
+
+
+    unsigned ix = -1;
+	unsigned* length = 0;
+	unsigned* suffixLink = 0;
+    char* alpha = 0;
+
+
+    State* clone();
+    void addChild(State* child);
+    State* getChild(char c);
+    void replaceChild(State* state);
+
 };
 
-
-State* statesArray = 0;
-
-State* init(unsigned statesCapacity) {
-    STATES_CAPACITY = statesCapacity;
-    return statesArray = (State*)malloc(sizeof(State) * statesCapacity);
-}
-
-unsigned getNewStateIx() {
-    if (STATES_CNT == STATES_CAPACITY)
-        return -1;
-    return STATES_CNT++;
-}
-
-State* getNewState() {
-    if (STATES_CNT == STATES_CAPACITY)
-        return 0;
-    return statesArray + STATES_CNT++;
-}
-
-State* getStateByIx(unsigned ix) {
-    if (STATES_CNT <= ix)
-        return 0;
-    return statesArray + ix;
-}
-
+unsigned long long* getEdgesCount();
