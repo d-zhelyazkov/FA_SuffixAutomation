@@ -8,6 +8,8 @@ extern unsigned long long EDGES_CNT;
 extern unsigned* statesLengths;
 extern unsigned* statesLinks;
 extern char* statesAlphas;
+extern unsigned** statesChildren;
+extern unsigned char* statesChildrenCounts;
 
 
 void init(unsigned statesCapacity);

@@ -12,8 +12,6 @@ unsigned long long EDGES_CNT = 0;
 unsigned* statesLengths = 0;
 unsigned* statesLinks = 0;
 char* statesAlphas = 0;
-
-//locals
 unsigned** statesChildren = 0;
 unsigned char* statesChildrenCounts = 0;
 
@@ -33,12 +31,6 @@ void init(unsigned statesCapacity) {
 
 unsigned getNewState() {
     STATES_CNT++;
-
-    /*statesAlphas[STATES_CNT] = 0;
-    statesLinks[STATES_CNT] = 0;
-    statesLengths[STATES_CNT] = 0;
-    statesChildren[STATES_CNT] = 0;
-    statesChildrenManyFlag[STATES_CNT] = 0;*/
 
     return STATES_CNT;
 }
