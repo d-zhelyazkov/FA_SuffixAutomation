@@ -1,6 +1,7 @@
-time sh 25381.sh abcbc.txt
-time sh 25381.sh aba.txt
-time sh 25381.sh dababd.txt
-time sh 25381.sh empty.txt
-time sh 25381.sh notSoLongInput.txt
-time sh 25381.sh realWord.txt
+./runATest.sh abbb.txt
+./runATest.sh aba.txt
+./runATest.sh abcbc.txt
+./runATest.sh dababd.txt
+./runATest.sh empty.txt
+./runATest.sh notSoLongInput.txt
+./runATest.sh realWord.txt

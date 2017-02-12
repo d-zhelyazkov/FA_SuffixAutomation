@@ -12,19 +12,21 @@ unsigned long long EDGES_CNT = 0;
 unsigned* statesLengths = 0;
 unsigned* statesLinks = 0;
 char* statesAlphas = 0;
+//char* statesChildEdge = 0;
 unsigned** statesChildren = 0;
 unsigned char* statesChildrenCounts = 0;
 
 
 template <typename T>
-T* templateCalloc(T*&arrPtr, unsigned size) {
-    return arrPtr = (T*)calloc(size, sizeof(T));
+void templateCalloc(T*&arrPtr, unsigned size) {
+    arrPtr = (T*)calloc(size, sizeof(T));
 }
 
 void init(unsigned statesCapacity) {
     templateCalloc(statesLengths, statesCapacity);
     templateCalloc(statesLinks, statesCapacity);
     templateCalloc(statesAlphas, statesCapacity);
+    //templateCalloc(statesChildEdge, statesCapacity);
     templateCalloc(statesChildrenCounts, statesCapacity);
     templateCalloc(statesChildren, statesCapacity);
 }
@@ -37,12 +39,13 @@ unsigned getNewState() {
 
 //ChildrenCount getStateChildrenCount(unsigned state) {
 //    return (!statesChildren[state]) ? ZERO :
-//        (!statesChildrenManyFlag[state]) ? ONE : MANY;
+//        (statesChildEdge[state]) ? ONE : MANY;
 //}
 
 unsigned cloneState(unsigned state) {
     unsigned clone = getNewState();
     statesAlphas[clone] = statesAlphas[state];
+    //statesChildEdge[clone] = statesChildEdge[state];
     statesLinks[clone] = statesLinks[state];
 
     //copy children array
@@ -72,28 +75,30 @@ unsigned cloneState(unsigned state) {
     return clone;
 }
 
-//void setChild(unsigned state, unsigned child) {
+//void setChild(unsigned state, unsigned child, char edge) {
 //    switch (getStateChildrenCount(state)) {
 //    case ZERO:
+//        statesChildEdge[state] = edge;
 //        statesChildren[state] = new unsigned(child);
 //        EDGES_CNT++;
 //        break;
 //    case ONE: {
 //        unsigned existingChild = *(statesChildren[state]);
-//        if (statesAlphas[existingChild] == statesAlphas[child]) {
+//        if (statesChildEdge[state] == edge) {
 //            *(statesChildren[state]) = child;
 //        }
 //        else {
 //            delete statesChildren[state];
-//            statesChildren[state] = new unsigned[CHILDREN_SIZE]();
-//            statesChildren[state][statesAlphas[existingChild] - 'a'] = existingChild;
-//            statesChildren[state][statesAlphas[child] - 'a'] = child;
+//            templateCalloc(statesChildren[state], CHILDREN_SIZE);
+//            statesChildren[state][statesChildEdge[state] - 'a'] = existingChild;
+//            statesChildren[state][edge - 'a'] = child;
+//            statesChildEdge[state] = 0;
 //            EDGES_CNT++;
 //        }
 //        break;
 //    }
 //    case MANY: {
-//            char normalizedAlpha = statesAlphas[child] - 'a';
+//            char normalizedAlpha = edge - 'a';
 //            if (!statesChildren[state][normalizedAlpha])
 //                EDGES_CNT++;
 //            statesChildren[state][normalizedAlpha] = child;
@@ -128,11 +133,11 @@ void replaceChild(unsigned state, unsigned newChild) {
     }
 }
 
-unsigned getChild(unsigned state, char c) {
+unsigned getChild(unsigned state, char edge) {
 
     for (unsigned char i = 0; i < statesChildrenCounts[state]; i++) {
         unsigned child = statesChildren[state][i];
-        if (statesAlphas[child] == c)
+        if (statesAlphas[child] == edge)
             return child;
     }
 
@@ -143,9 +148,9 @@ unsigned getChild(unsigned state, char c) {
         return 0;
     case ONE: {
             unsigned child = *(statesChildren[state]);
-            return (statesAlphas[child] == c) ? child : 0;
+            return (statesChildEdge[state] == edge) ? child : 0;
         }
     case MANY:
-        return statesChildren[state][c - 'a'];
+        return statesChildren[state][edge - 'a'];
     }*/
 }
