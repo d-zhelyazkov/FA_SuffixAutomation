@@ -23,8 +23,6 @@
     <ClCompile Include="state.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ArrayList.h" />
-    <ClInclude Include="linked_list.h" />
     <ClInclude Include="state.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

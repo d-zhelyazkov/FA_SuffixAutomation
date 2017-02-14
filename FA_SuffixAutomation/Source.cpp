@@ -41,7 +41,7 @@ void addChar(char c) {
 
     //creating a state
     unsigned newState = getNewState();
-    statesAlphas[newState] = c;
+    //statesAlphas[newState] = c;
     statesLengths[newState] = statesLengths[CURRENT] + 1;
     statesLinks[newState] = START;
 
@@ -49,7 +49,8 @@ void addChar(char c) {
     for (unsigned state = CURRENT; state; state = statesLinks[state]){
         unsigned childState = getChild(state, c);
         if (!childState) {
-            addChild(state, newState);
+            //addChild(state, newState);
+            setChild(state, newState, c);
         }
         else {
             //a corresponing edge was found
@@ -61,7 +62,8 @@ void addChar(char c) {
                 unsigned clone = cloneState(childState);
                 statesLengths[clone] = statesLengths[state] + 1;
                 for (; state && getChild(state, c) == childState; state = statesLinks[state]) {
-                    replaceChild(state, clone);
+                    //replaceChild(state, clone);
+                    setChild(state, clone, c);
                 }
 
                 statesLinks[newState] = statesLinks[childState] = clone;
